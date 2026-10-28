@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherNow</title>
+    
+    <!-- Favicon cu logo-ul tău -->
+    <link rel="icon" href="logo.jfif" type="image/jpeg">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="animated-bg text-white min-h-screen font-sans overflow-x-hidden flex flex-col relative">
+
+    <nav class="p-6 flex justify-between items-center z-10 relative glass-nav">
+        <div class="text-2xl font-bold flex items-center gap-3 cursor-pointer transition-transform hover:scale-105" onclick="showView('landing-view')">
+            <img src="logo.jfif" alt="WeatherNow Logo" class="w-12 h-12 rounded-2xl shadow-[0_0_15px_rgba(59,130,246,0.4)] object-cover border border-slate-700/50">
+            <span class="tracking-tight">WeatherNow</span>
+        </div>
+        
+        <div id="nav-actions" class="hidden flex gap-4 text-sm font-medium">
+            <button onclick="showView('landing-view')" class="bg-slate-800/80 hover:bg-slate-700 px-4 py-2 rounded-full transition-colors flex items-center gap-2 border border-slate-600 shadow-lg">
+                <i data-lucide="search" class="w-4 h-4 text-blue-400"></i> Căutare nouă
+            </button>
+        </div>
+    </nav>
+
+    <!-- PAGINA 1: CĂUTARE -->
+    <main id="landing-view" class="flex-1 flex flex-col justify-center items-center p-6 fade-in-up">
+        <img src="logo.jfif" alt="App Icon" class="w-24 h-24 rounded-3xl shadow-2xl mb-8 border border-white/10 hover:scale-110 transition-transform duration-500 object-cover">
+        
+        <h1 class="text-5xl md:text-6xl font-bold mb-6 text-center tracking-tight">Ghidul tău inteligent pentru <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">vreme</span></h1>
+        <p class="text-slate-300 mb-10 text-lg text-center max-w-xl">Introdu orașul tău și află cum va fi vremea în următoarele 7 zile.</p>
+        
+        <div class="relative w-full max-w-2xl mb-8 group">
+            <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-emerald-600 rounded-full blur opacity-25 group-focus-within:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+            <div class="relative w-full flex items-center">
+                <i data-lucide="search" id="search-icon-landing" class="absolute left-6 text-slate-400 transition-all duration-300"></i>
+                <input type="text" id="main-search" placeholder="Ex: București, Cluj-Napoca, Timișoara, Brașov..." class="w-full bg-slate-900 border border-slate-700 rounded-full py-5 pl-14 pr-32 text-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 transition-all shadow-2xl">
+                <button onclick="handleSearch('main-search')" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-full font-medium transition-colors shadow-lg">
+                    Caută
+                </button>
+            </div>
+        </div>
+
+        <div class="flex gap-3 flex-wrap justify-center mt-2">
+            <button id="btn-location" onclick="useMyLocation()" class="bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 px-5 py-2.5 rounded-full text-sm border border-blue-500/50 transition flex items-center gap-2 shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:scale-105">
+                <i data-lucide="map-pin" class="w-4 h-4"></i> Locația mea
+            </button>
+            <button onclick="quickSearch('București')" class="bg-slate-800/80 hover:bg-slate-700 px-5 py-2.5 rounded-full text-sm border border-slate-700 transition hover:scale-105">🌍 București</button>
+            <button onclick="quickSearch('Cluj-Napoca')" class="bg-slate-800/80 hover:bg-slate-700 px-5 py-2.5 rounded-full text-sm border border-slate-700 transition hover:scale-105">🎓 Cluj-Napoca</button>
+            <button onclick="quickSearch('Timișoara')" class="bg-slate-800/80 hover:bg-slate-700 px-5 py-2.5 rounded-full text-sm border border-slate-700 transition hover:scale-105">🌹 Timișoara</button>
+            <button onclick="quickSearch('Brașov')" class="bg-slate-800/80 hover:bg-slate-700 px-5 py-2.5 rounded-full text-sm border border-slate-700 transition hover:scale-105">⛰️ Brașov</button>
+        </div>
+        <p id="landing-error" class="text-red-400 mt-6 hidden bg-red-900/30 px-4 py-2 rounded-lg border border-red-500/50">Orașul nu a fost găsit!</p>
+    </main>
+
+    <!-- PAGINA 2: ZILELE SĂPTĂMÂNII -->
+    <main id="dashboard-view" class="hidden flex-1 w-full max-w-4xl mx-auto p-6 flex flex-col z-10 relative">
+        <div class="glass-panel p-8 fade-in-up flex flex-col">
+            <div class="text-center mb-10">
+                <p class="text-emerald-400 text-sm font-bold tracking-widest uppercase mb-2">Prognoză pe 7 Zile</p>
+                <h2 id="city-name-big" class="text-5xl font-bold tracking-tight text-white">Oraș</h2>
+                <div id="city-subtitle" class="text-blue-300 font-medium text-lg mt-3 flex items-center justify-center gap-2">
+                    <!-- Completat din JS -->
+                </div>
+                <p class="text-slate-400 mt-4 text-lg">Apasă pe o zi pentru a vedea prognoza detaliată.</p>
+            </div>
+
+            <div class="flex flex-col gap-3" id="days-list-container">
+                <!-- Zilele -->
+            </div>
+        </div>
+    </main>
+
+    <!-- PAGINA 3: DETALII ZI -->
+    <main id="day-detail-view" class="hidden flex-1 w-full max-w-5xl mx-auto p-6 flex flex-col z-10 relative">
+        <div class="glass-panel p-8 fade-in-up">
+            
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-slate-700/50 pb-6 gap-4">
+                <div>
+                    <button onclick="showView('dashboard-view')" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2 mb-2 text-sm font-medium">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Înapoi la 7 Zile
+                    </button>
+                    <h2 id="detail-day-name" class="text-4xl font-bold text-white">Detalii Zi</h2>
+                    <p id="detail-date" class="text-emerald-400 font-medium mt-1">Data</p>
+                </div>
+                
+                <div class="flex items-center gap-4 bg-slate-800/50 px-6 py-3 rounded-2xl border border-slate-700 shadow-inner">
+                    <img id="detail-main-icon" src="" class="w-16 h-16 drop-shadow-md hover:scale-110 transition-transform" alt="Vreme">
+                    <div>
+                        <div id="detail-main-desc" class="text-xl font-bold">--</div>
+                        <div id="detail-main-temps" class="text-slate-400 font-medium">Min -- / Max --</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="font-bold text-xl mb-4 text-blue-100 flex items-center gap-2">
+                <i data-lucide="clock" class="text-blue-400"></i> Prognoza pe ore
+            </h3>
+            <div class="bg-slate-900/50 rounded-2xl p-2 mb-8 border border-slate-800 shadow-inner">
+                <div id="hourly-container" class="flex gap-3 p-4 overflow-x-auto hourly-scroll w-full">
+                </div>
+            </div>
+
+            <h3 class="font-bold text-xl mb-4 text-blue-100 flex items-center gap-2">
+                <i data-lucide="activity" class="text-blue-400"></i> Analiză Detaliată
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-slate-800/60 p-5 rounded-2xl border border-slate-700 flex flex-col hover:bg-slate-700/60 transition-colors shadow-md">
+                    <i data-lucide="cloud-rain" class="text-blue-400 mb-3 w-8 h-8"></i>
+                    <span class="text-sm text-slate-400 font-medium">Șanse Precipitații</span>
+                    <span id="detail-rain" class="font-bold text-2xl mt-1">--%</span>
+                </div>
+                <div class="bg-slate-800/60 p-5 rounded-2xl border border-slate-700 flex flex-col hover:bg-slate-700/60 transition-colors shadow-md">
+                    <i data-lucide="sun-dim" class="text-orange-400 mb-3 w-8 h-8"></i>
+                    <span class="text-sm text-slate-400 font-medium">Radiații (UV Index)</span>
+                    <span id="detail-uv" class="font-bold text-2xl mt-1">--</span>
+                </div>
+                <div class="bg-slate-800/60 p-5 rounded-2xl border border-slate-700 flex flex-col hover:bg-slate-700/60 transition-colors shadow-md">
+                    <i data-lucide="wind" class="text-teal-400 mb-3 w-8 h-8"></i>
+                    <span class="text-sm text-slate-400 font-medium">Rafale Vânt (Max)</span>
+                    <span id="detail-wind" class="font-bold text-2xl mt-1">-- km/h</span>
+                </div>
+                <div class="bg-slate-800/60 p-5 rounded-2xl border border-slate-700 flex flex-col justify-center gap-3 hover:bg-slate-700/60 transition-colors shadow-md">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2 text-sm text-slate-300">
+                            <i data-lucide="sunrise" class="text-yellow-400 w-5 h-5"></i> Răsărit
+                        </div>
+                        <span id="detail-sunrise" class="font-bold">--:--</span>
+                    </div>
+                    <div class="w-full h-px bg-slate-700"></div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-2 text-sm text-slate-300">
+                            <i data-lucide="sunset" class="text-purple-400 w-5 h-5"></i> Apus
+                        </div>
+                        <span id="detail-sunset" class="font-bold">--:--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- CHATBOT UI -->
+    <button id="chatbot-toggle" class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-500 text-white p-4 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)] z-50 transition-transform hover:scale-110">
+        <i data-lucide="message-circle" class="w-6 h-6"></i>
+    </button>
+
+    <div id="chatbot-window" class="hidden fixed bottom-24 right-6 w-80 md:w-96 bg-slate-900/95 backdrop-blur-xl border border-slate-700 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden">
+        <!-- Header Chat -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-500 p-4 flex justify-between items-center">
+            <h3 class="text-white font-bold flex items-center gap-2">
+                <i data-lucide="bot" class="w-5 h-5"></i> WeatherBot AI
+            </h3>
+            <button id="chatbot-close" class="text-blue-100 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        
+        <!-- Mesaje -->
+        <div id="chatbot-messages" class="flex-1 p-4 h-72 overflow-y-auto flex flex-col gap-3 text-sm scroll-smooth">
+            <div class="bg-slate-800 text-slate-200 p-3 rounded-lg rounded-tl-none self-start max-w-[85%] border border-slate-700">
+                Salut! Te pot ajuta cu informații despre vreme sau sfaturi meteo. Cu ce îți pot fi de folos?
+            </div>
+        </div>
+        
+        <!-- Input -->
+        <div class="p-3 bg-slate-800 border-t border-slate-700 flex gap-2 items-center">
+            <input type="text" id="chatbot-input" placeholder="Întreabă-mă ceva..." class="flex-1 bg-slate-900 text-white border border-slate-600 rounded-full px-4 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm transition-all">
+            <button id="chatbot-send" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-full transition-colors flex items-center justify-center">
+                <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
